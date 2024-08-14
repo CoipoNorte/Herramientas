@@ -1,0 +1,186 @@
+Aplicación de Organización de Carpetas
+
+Descripción General:
+La aplicación permite a los usuarios organizar proyectos creando y gestionando estructuras de carpetas para diferentes lenguajes de programación y arquitecturas. Los usuarios pueden crear carpetas, renombrarlas, eliminarlas, y generar estructuras predefinidas. La interfaz está diseñada para ser intuitiva, con funcionalidades de arrastrar y soltar y menús contextuales.
+
+1. Requisitos del Proyecto:
+
+1.1 Interfaz de Usuario:
+
+1.1.1 Parte Superior: Campo de Texto para Nombre del Proyecto: Permite al usuario ingresar el nombre del proyecto.
+1.1.2 Panel Izquierdo (Categorías de Carpetas): Muestra carpetas organizadas por categorías, como "Código fuente", "Recursos", "Estilos", etc.
+1.1.3 Panel Central (Área de Trabajo): Permite al usuario arrastrar y soltar carpetas, crear nuevas carpetas, renombrarlas y eliminarlas.
+1.1.3 Panel Derecho (Estructuras): Contiene botones para generar estructuras de carpetas específicas para diferentes lenguajes de programación y arquitecturas.
+1.1.4 Panel Inferior Derecho (Botones de Acción): Botones para crear, renombrar y eliminar carpetas.
+
+1.2 Funcionalidades:
+
+1.2.1 Arrastrar y Soltar: Permite arrastrar carpetas entre el panel de categorías y el área de trabajo, y mover carpetas dentro del área de trabajo.
+1.2.2 Crear Carpeta: Permite crear nuevas carpetas en la ubicación actual seleccionada.
+1.2.3 Eliminar Carpeta: Permite eliminar la carpeta seleccionada.
+1.2.4 Renombrar Carpeta: Permite cambiar el nombre de la carpeta seleccionada.
+1.2.5 Generar Estructuras de Carpetas: Botones para crear estructuras predefinidas basadas en el tipo de proyecto (e.g., Vanilla JS, PHP, Python, etc.).
+1.2.6 Desmarcar Carpetas: Las carpetas se desmarcan cuando se hace clic fuera de ellas.
+1.2.7 Menús Contextuales: Ofrecen opciones de crear, eliminar y renombrar carpetas, accesibles solo al hacer clic derecho sobre las carpetas.
+
+2. Estructura de Carpeta y Archivos:
+
+Categorías de Carpetas: Estos son los elementos del Panel Izquierdo.
+
+1. Código fuente y lógica de la aplicación:
+   - src/
+   - app/
+   - lib/
+   - components/
+   - utils/
+   - helpers/
+   - controllers/
+   - models/
+   - services/
+
+2. Recursos y assets:
+   - assets/
+   - images/
+   - audio/
+   - video/
+   - fonts/
+   - svg/
+
+3. Estilos:
+   - css/
+   - sass/
+   - less/
+
+4. Documentación:
+   - docs/
+   - markdown/
+
+5. Configuración:
+   - config/
+   - .git/
+   - docker/
+
+6. Scripts y herramientas:
+   - scripts/
+   - tools/
+
+7. Pruebas:
+   - tests/
+   - spec/
+
+8. Datos:
+   - data/
+   - database/
+
+9. Salida compilada/construida:
+   - dist/
+   - build/
+
+10. Servidor y API:
+    - server/
+    - api/
+
+11. Rutas y middleware:
+    - routes/
+    - middleware/
+
+12. Interfaz de usuario:
+    - views/
+    - templates/
+    - layouts/
+
+13. Contenido estático:
+    - public/
+    - static/
+
+14. Seguridad:
+    - secure/
+    - keys/
+
+15. Temporales y caché:
+    - temp/
+    - cache/
+
+16. Logs:
+    - logs/
+
+17. Internacionalización:
+    - lang/
+    - locales/
+
+18. Ejemplos y demos:
+    - examples/
+    - demo/
+
+
+3. Estructuras Comunes:
+
+Estructuras: Estos son los elementos del Panel Derecho.
+
+1. Vanilla JavaScript (JS):
+   - src/
+   - dist/
+   - assets/
+   - index.html
+
+2. PHP (Proyecto estándar):
+   - public/
+   - src/
+   - config/
+   - tests/
+
+3. Python:
+   - project_name/
+   - tests/
+   - docs/
+   - requirements.txt
+
+4. C++:
+   - src/
+   - include/
+   - lib/
+   - build/
+
+5. Java:
+   - src/
+     - main/
+       - java/
+       - resources/
+   - test/
+   - target/
+
+6. TypeScript (TS):
+   - src/
+   - dist/
+   - types/
+   - tests/
+
+7. CSS/HTML:
+   - css/
+   - js/
+   - images/
+   - index.html
+
+8. MVC (aplicable a varios lenguajes):
+   - models/
+   - views/
+   - controllers/
+   - public/
+
+9. Arquitectura Hexagonal:
+   - application/
+   - domain/
+   - infrastructure/
+   - interfaces/
+
+Diseño y Usabilidad:
+
+La interfaz debe ser clara y fácil de usar.
+Los botones y menús deben estar bien organizados y accesibles.
+Los paneles deben estar correctamente distribuidos para facilitar la navegación y gestión de carpetas.
+Consideraciones Adicionales:
+
+Asegúrate de validar y manejar errores adecuadamente (por ejemplo, nombres de carpetas vacíos o duplicados).
+Implementa confirmaciones para acciones destructivas como eliminar carpetas.
+Proporciona retroalimentación visual clara cuando se realizan cambios (por ejemplo, mensajes de éxito o error).
+Este plan debería cubrir los aspectos clave del proyecto y servir como guía para el desarrollo y ajuste de la aplicación. Si hay más detalles que deseas agregar o ajustar, no dudes en informarme.

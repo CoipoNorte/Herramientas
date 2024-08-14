@@ -1,0 +1,57 @@
+EFP: Miner ́ıa de Procesos
+Control #03
+Objetivo
+El objetivo de este ejercicio es que analice un log de eventos para descubrir, caracterizar y analizar un
+proceso de negocio, aplicando t ́ecnicas disponibles en la herramienta DISCO.
+Instrucciones
+(60 puntos)
+Paso 1: Abrir en Excel el archivo PurchasingExample.csv y ver su contenido.
+• Cada fila corresponde a un evento
+• Hay informaci ́on sobre: Case IDs, Activities, Start and end times, Resources, Roles
+Paso 2: Cargar el archivo PurchasingExample.csv en DISCO.
+• Asignar las columnas de la siguiente manera:
+◦ Case ID → Case ID
+◦ Start and Complete Timestamp → Timestamp
+◦ Activity → Activity
+◦ Resource → Resource
+◦ Role → Other
+• Importar
+Paso 3: Inspeccionar el proceso
+• Ver el modelo del proceso resultante
+• Revisar estad ́ısticas del proceso
+1. ¿Cu ́antos eventos y casos tiene el log de eventos?
+2. ¿Cu ́antas actividades y ejecutores hay?
+3. ¿Cu ́ales son las actividades que m ́as/menos se realizan?
+4. ¿Cu ́ales son los ejecutores que participan?
+5. ¿Cu ́ales ejecutores participan en actividades de inicio, y de finalizaci ́on, respectivamente?
+6. ¿Cu ́al es la duraci ́on promedio de los casos? ¿Hay casos particulares?
+1
+• Ajustar Activities (primero a 0 %, y luego 100 %) ¿Qu ́e pasa en cada caso?
+• En la actividad: Amend Purchase Requisition recibe 11 casos, pero solo salen 8, ¿qu ́e pasa
+con los otros 3 casos?
+Paso 4: Inspeccionar Cases
+1. ¿Qu ́e patr ́on puede descubrirse?
+2. ¿Cu ́al recomendaci ́on se podr ́ıa dar al negocio?
+Paso 5: Filtros
+1. Piensen en la siguiente pregunta de negocio: ¿En qu ́e parte del proceso la empresa invierte m ́as
+el tiempo?
+2. Utilicen las funcionalidades de filtros para poder responder a la pregunta anterior
+Paso 6: Bottlenecks
+1. Al detectar donde la empresa invierte m ́as tiempo, descubra posibles cuellos de botella (Bottle-
+necks) que se presenten en el proceso
+2. Utilice la funcionalidad Animation para ver el comportamiento del proceso
+3. ¿Qu ́e se le puede recomendar a la empresa despu ́es del an ́alisis de Bottleneck?
+Paso 7: Vista organizacional
+1. Elimine el filtro aplicado en el paso 5, y vuelva a la vista de Frequency
+2. Crear vista alternativa para ver el flujo organizacional
+a) Ir a Project view y dar en Reload
+b) Establecer la columna Activitycomo un atributo del tipo Other
+c) Configurar la columna Role como Activity
+3. ¿Qu ́e se puede ver ahora?
+4. Descubran cu ́al rol provoca los mayores atrasos en el proceso
+Instrucciones
+Este actividad se realizar ́a en pares (mismos grupos del control 2).
+Responda cada pregunta adjuntando im ́agenes (puede obtener capturas de pantalla, cuando corres-
+ponda).
+Se debe subir un archivo en formato PDF a la plataforma eLearn.La buz ́on de entrega estar ́a
+habilitado hasta el mi ́ercoles 22 de mayo hasta las 21:00 horas.

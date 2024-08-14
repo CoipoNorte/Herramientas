@@ -1,0 +1,1553 @@
+DeepASL: Enabling Ubiquitous and Non-Intrusive Word and
+ Sentence-Level Sign Language Translation
+ Biyi Fang, Jillian Co, Mi Zhang
+ Michigan State University
+ ABSTRACT
+ There is an undeniable communication barrier between deaf people
+ and people with normal hearing ability. Although innovations in
+ sign language translation technology aim to tear down this com
+arXiv:1802.07584v1  [cs.CV]  21 Feb 2018
+ munication barrier, the majority of existing sign language transla
+tion systems are either intrusive or constrained by resolution or
+ ambient lighting conditions. Moreover, these existing systems can
+ only perform single-sign ASL translation rather than sentence-level
+ translation, making them much less useful in daily-life communi
+cation scenarios. In this work, we fill this critical gap by present
+ing DeepASL, a transformative deep learning-based sign language
+ translation technology that enables ubiquitous and non-intrusive
+ American Sign Language (ASL) translation at both word and sen
+tence levels. DeepASL uses infrared light as its sensing mechanism
+ to non-intrusively capture the ASL signs. It incorporates a novel
+ hierarchical bidirectional deep recurrent neural network (HB-RNN)
+ and a probabilistic framework based on Connectionist Temporal
+ Classification (CTC) for word-level and sentence-level ASL transla
+tion respectively. To evaluate its performance, we have collected
+ 7, 306 samples from 11 participants, covering 56 commonly used
+ ASL words and 100 ASL sentences. DeepASL achieves an average
+ 94.5% word-level translation accuracy and an average 8.2% word
+ error rate on translating unseen ASL sentences. Given its promis
+ing performance, we believe DeepASL represents a significant step
+ towards breaking the communication barrier between deaf peo
+ple and hearing majority, and thus has the significant potential to
+ fundamentally change deaf people’s lives.
+ CCSCONCEPTS
+ • Human-centeredcomputing→Accessibility technologies;
+ • Computing methodologies → Neural networks;
+ KEYWORDS
+ Deep Learning; Sign Language Translation; Assistive Technology;
+ Mobile Sensing Systems; Human-Computer Interaction
+ ACMReference Format:
+ Biyi Fang, Jillian Co, Mi Zhang. 2017. DeepASL: Enabling Ubiquitous and
+ Non-Intrusive Word and Sentence-Level Sign Language Translation. In
+ Proceedings of SenSys ’17, Delft, Netherlands, November 6–8, 2017, 13 pages.
+ https://doi.org/10.1145/3131672.3131693
+ Permission to make digital or hard copies of all or part of this work for personal or
+ classroom use is granted without fee provided that copies are not made or distributed
+ for profit or commercial advantage and that copies bear this notice and the full citation
+ on the first page. Copyrights for components of this work owned by others than ACM
+ must be honored. Abstracting with credit is permitted. To copy otherwise, or republish,
+ to post on servers or to redistribute to lists, requires prior specific permission and/or a
+ fee. Request permissions from permissions@acm.org.
+ SenSys ’17, November 6–8, 2017, Delft, Netherlands
+ ©2017 Association for Computing Machinery.
+ ACMISBN978-1-4503-5459-2/17/11...$15.00
+ https://doi.org/10.1145/3131672.3131693
+ 1 INTRODUCTION
+ In the United States, there are over 28 million people considered
+ deaf or hearing disabled [2]. American Sign Language, or ASL in
+ short, is the primary language used by deaf people to communicate
+ with others [3]. Unfortunately, very few people with normal hear
+ing understand sign language. Although there are a few methods
+ for aiding a deaf person to communicate with people who do not
+ understand sign language, such as seeking help from a sign lan
+guage interpreter, writing on paper, or typing on a mobile phone,
+ each of these methods has its own key limitations in terms of cost,
+ availability, or convenience. As a result, there is an undeniable
+ communication barrier between deaf people and hearing majority.
+ At the heart of tearing down this communication barrier is the
+ sign language translation technology. Sign language is a language
+ like other languages but based on signs rather than spoken words. A
+ sign language translation system uses sensors to capture signs and
+ computational methods to map the captured signs to English. Over
+ the past few decades, although many efforts have been made, sign
+ language translation technology is still far from being practically
+ useful. Specifically, existing sign language translation systems use
+ motion sensors, Electromyography (EMG) sensors, RGB cameras,
+ Kinect sensors, or their combinations [10, 11, 28, 40, 46] to cap
+ture signs. Unfortunately, these systems are either intrusive where
+ sensors have to be attached to fingers and palms of users, lack of
+ resolutions to capture the key characteristics of signs, or signifi
+cantly constrained by ambient lighting conditions or backgrounds
+ in real-world settings. More importantly, existing sign language
+ translation systems can only translate a single sign at a time, thus
+ requiring users to pause between adjacent signs. These limitations
+ significantly slow down face-to-face conversations, making those
+ sign language translation systems much less useful in daily-life
+ communication scenarios.
+ In this paper,wepresentDeepASL,atransformativedeeplearning
+basedsignlanguagetranslationtechnologythatenablesnon-intrusive
+ ASL translation at both word and sentence levels. DeepASL can be
+ embedded inside a wearable device, a mobile phone, a tablet, a lap
+top, a desktop computer, or a cloud server to enable ubiquitous sign
+ language translation. As such, DeepASL acts as an always-available
+ virtual sign language interpreter, which allows deaf people to use
+ their primary language to communicate with the hearing majority
+ in a natural and convenient manner. As an example, Figure 1 illus
+trates an envisioned scenario where DeepASL is in the form of a
+ wearable device, enabling a deaf person and a hearing individual
+ who does not understand ASL to use their own primary languages
+ to communicate with each other face to face. Specifically, from
+ one side, DeepASL translates signs performed by the deaf person
+ into spoken English; from the other side, DeepASL leverages the
+ speech recognition technology to translate English spoken from
+SenSys ’17, November 6–8, 2017, Delft, Netherlands
+ B. Fang et al.
+ (a)
+ (b)
+ (c)
+ Figure 1: Illustration of an envisioned scenario of real-time two-way communication enabled by DeepASL: (a) DeepASL translates the signs
+ performed by the deaf person into spoken English and broadcasts the translated ASL sentence via a speaker; (b) DeepASL captures the signs
+ in a non-intrusive manner; (c) DeepASL leverages the speech recognition technology to translate spoken English into texts, and projects the
+ texts through a pair of augmented reality (AR) glasses.
+ the hearing individual into text, and projects the text through a pair
+ of augmented reality (AR) glasses for the deaf person to read.
+ DeepASL uses Leap Motion [4]– an infrared light-based sensing
+ device that can extract the skeleton joints information of fingers,
+ palms and forearms– to non-intrusively capture the ASL signs
+ performed by a deaf person. By leveraging the extracted skeleton
+ joints information, DeepASL achieves word and sentence-level ASL
+ translation via three innovations. First, DeepASL leverages domain
+ knowledge of ASL to extract the key characteristics of ASL signs
+ buried in the raw skeleton joints data. Second, DeepASL employs
+ a novel hierarchical bidirectional deep recurrent neural network
+ (HB-RNN) to effectively model the spatial structure and tempo
+ral dynamics of the extracted ASL characteristics for word-level
+ ASL translation. Third, DeepASL adopts a probabilistic framework
+ based on Connectionist Temporal Classification (CTC) [19] for
+ sentence-level ASL translation. This eliminates the restriction of
+ pre-segmenting the whole sentence into individual words, and thus
+ enables translating the whole sentence end-to-end directly without
+ requiring users to pause between adjacent signs. Moreover, it en
+ables DeepASL to translate ASL sentences that are not included in
+ the training dataset, and hence eliminates the burden of collecting
+ all possible ASL sentences.
+ Summaryof Experimental Results: We have conducted a rich
+ set of experiments to evaluate the performance of DeepASL in
+ three aspects: 1) ASL translation performance at both word level
+ and sentence level; 2) robustness of ASL translation under various
+ real-world settings; and 3) system performance in terms of runtime,
+ memory usage and energy consumption. Specifically, to evaluate
+ the ASL translation performance, we have collected 7,306 samples
+ from 11 participants, covering 56 commonly used ASL words and
+ 100 ASL sentences. To evaluate the robustness, we have collected
+ 1, 178 samples under different ambient lighting conditions, body
+ postures when performing ASL, and scenarios with in-the-scene
+ interference and multi-device interference. To evaluate the system
+ performance, we have implemented DeepASL on three platforms
+ with different computing power: 1) a desktop equipped with an
+ Intel i7-4790 CPU and a Nvidia GTX 1080 GPU (desktop CPU and
+ GPU), 2) a Nvidia Jetson TX1 mobile development board equipped
+ with an ARM Cortex-A57 CPU and a Nvidia Tegra X1 GPU (mobile
+ CPU and GPU), and 3) a Microsoft Surface Pro 4 tablet equipped
+ with an Intel i5-6300 CPU (tablet CPU). Our results show that:
+ • Atthe word level, DeepASL achieves an average 94.5% trans
+lation accuracy. At the sentence level, DeepASL achieves an
+ average 8.2% word error rate on translating unseen ASL sen
+tences and an average 16.1% word error rate on translating ASL
+ sentences performed by unseen users.
+ • DeepASL achieves more than 91.8% word-level ASL translation
+ accuracy in various ambient lighting conditions, body postures,
+ and interference sources, demonstrating its great robustness in
+ real-world daily communication scenarios.
+ • DeepASLachieves 282 ms in runtime performance in the worst
+case scenario across three platforms for both word-level and
+ sentence translation. It also demonstrates the capability of sup
+porting enough number of inferences for daily usage on both
+ mobile and tablet platforms.
+ SummaryofContributions: The development of sign language
+ translation technology dates back to the beginning of 90s [44].
+ However, due to the limitations in both sensing technology and
+ computational methods, limited progress has been made over the
+ decades. The innovative solution provided by DeepASL effectively
+ addresses those limitations, and hence represents a significant con
+tribution to the advancement of sign language translation tech
+nology. Moreover, the development of DeepASL enables a wide
+ range of applications. As another contribution of this work, we
+ have designed and developed two prototype applications on top of
+ DeepASL to demonstrate its practical value.
+ According to World Health Organization (WHO), there are an
+ estimated 360 million people worldwide having disabling hearing
+ loss [6]. While the focus of this paper is on American sign language
+ translation, since our approach is generic at modeling signs ex
+pressed by hands, it can be leveraged for developing sign language
+ translation technologies for potentially any of the three hundred
+ sign languages in use around the world [7]. Given its promising
+ performance, we believe DeepASL represents a significant step
+ towards breaking the communication barrier between deaf peo
+ple and hearing majority, and thus has the significant potential to
+ fundamentally change deaf people’s lives.
+DeepASL
+ SenSys ’17, November 6–8, 2017, Delft, Netherlands
+ 2 BACKGROUND,STATE-OF-THE-ART,AND
+ DESIGN CHOICE
+ 2.1 Characteristics of ASL
+ ASLis a complete and complex language that mainly employs signs
+ made by moving the hands [23]. Each individual sign is character
+ized by three key sources of information: 1) hand shape, 2) hand
+ movement, and 3) relative location of two hands [23, 29]. It is the
+ combination of these three key characteristics that encodes the
+ meaning of each sign. As an example, Figure 2 illustrates how these
+ three characteristics altogether encode the meaning of two ASL
+ signs: “small” and “big”. Specifically, to sign “small”, one starts with
+ holding both hands in front of her with fingers closed (i.e., hand
+ shape), and then moves two hands towards each other (i.e., hand
+ movement and relative location). In comparison, to sign “big”, one
+ starts with extending the thumb and index fingers to form a slightly
+ bent ’L’ shape (i.e., hand shape), and then moves two hands away
+ from each other (i.e., hand movement and relative location).
+ Small
+ Big
+ 0
+ 0.3
+ 0.6
+ 0.9
+ Time	(s)
+ 1.2
+ 1.5
+ Figure 2: Illustration on how hand shape, hand movement, and rel
+ative location of two hands altogether encodes the meaning of two
+ ASL signs: “small” and “big”.
+ It is worthwhile to note that, for illustration purpose, we have
+ selected two of the most distinctive ASL signs to explain the charac
+teristics of ASL. In fact, there are many ASL signs that involve very
+ subtle differences in the three key characteristics mentioned above.
+ Moreover, in real-world scenarios, ASL signs can be expressed un
+der various conditions such as bright vs. poor lighting conditions,
+ walking vs. standing; and indoor vs. outdoor environments. It is the
+ subtle differences and the real-world factors altogether that makes
+ the task of ASL translation challenging.
+ 2.2 State-of-the-Art ASL Translation Systems
+ Basedonthesensingmodalitythesystemuses,existingASLtransla
+tion systems can be generally grouped into four categories: 1) wear
+able sensor-based, 2) Radio Frequency (RF)-based, 3) RGB camera
+based, and 4) Kinect-based systems. However, each of them has
+ fundamental limitations that prevent it from being practically use
+ful for translating ASL in daily life scenarios. Specifically, wearable
+ sensor-based systems [8, 24–28, 36, 42, 46] use motion sensors (ac
+celerometers, gyroscopes), EMG sensors, or bend sensors to capture
+ the movements of hands, muscle activities, or bending of fingers to
+ infer the performed signs. However, wearable sensor-based systems
+ require attaching sensors to a user’s fingers, palms, and forearms.
+ This requirement makes them very intrusive and impractical for
+ daily usage. RF-based systems [32] use wireless signals as a sensing
+ mechanism to capture hand movements. Although this contactless
+ sensing mechanism minimizes the intrusiveness to users, wire
+less signals have very limited resolutions to “see” the hands. RGB
+ camera-based systems [10, 40, 47], on the other hand, are capable
+ of capturing rich information about hand shape and hand move
+ment without instrumenting users. However, they fail to reliably
+ capture those information in poor lighting conditions or generally
+ uncontrolled backgrounds in real-world scenarios. Moreover, the
+ videos/images captured may be considered invasive to the privacy
+ of the user and surrounding bystanders. Finally, although Kinect
+based systems overcome the lighting and privacy issues of the RGB
+ camera-based systems by only capturing the skeleton information
+ of the user body and limbs [11, 12], they do not have enough reso
+lution to capture the hand shape information, which plays a critical
+ role on decoding the sign language.
+ 2.3 Design Choice
+ In the design of DeepASL, we use Leap Motion as our sensing
+ modality to capture ASL signs [4]. Leap Motion overcomes the
+ fundamental limitations of existing technologies and is able to
+ precisely capture the three key characteristics of ASL signs under
+ real-world scenarios in a non-intrusive manner. Specifically, Leap
+ Motion uses infrared light as its sensing mechanism. This not only
+ enables it to capture the signs in a contactless manner but also
+ makes it “see” the signs in poor lighting conditions. Moreover,
+ Leap Motion is able to extract skeleton joints of the fingers, palms
+ and forearms from the raw infrared images. This preserves the
+ privacy of the user and bystanders, and more importantly, provides
+ enough resolution to precisely capture hand shape as well as hand
+ movements and locations. As an example, Figure 3 illustrates how
+ the ASL signs of two words “small” and “big” are precisely captured
+ by the temporal sequence of skeleton joints of the fingers, palms
+ and forearms.
+ Small
+ Big
+ 0
+ 0.3
+ 0.6
+ 0.9
+ Time	(s)
+ 1.2
+ Right	
+Hand
+ Left
+ Hand
+ 1.5
+ 1.8
+ Figure 3: The skeleton joints of two ASL signs: “small” and “big”.
+ To sum up, Table 1 compares Leap Motion with other sensing
+ modalities used in existing sign language translation systems. As
+ listed, Leap Motion has shown its superiority over other sensing
+ modalities on capturing the three key characteristics of ASL signs in
+ a non-intrusive manner without the constraint of ambient lighting
+ condition. We leverage this superiority in the design of DeepASL.
+ Sensing
+ Hand
+ Hand
+ Hand
+ Modality
+ Shape
+ Movement Location
+ Motion + EMG +Bend Captured Captured
+ RF
+ RGB Camera
+ No
+ Captured
+ No
+ No
+ Intrusive
+ Yes
+ No
+ Lighting
+ Condition
+ Any
+ Any
+ Captured
+ Captured
+ Captured
+ Yes
+ Kinect
+ Leap Motion
+ No
+ Captured
+ Captured
+ No
+ Constrained
+ Any
+ Captured
+ Captured
+ Captured
+ No
+ Any
+ Table 1: Comparison of sensing modalities for ASL translation.
+SenSys ’17, November 6–8, 2017, Delft, Netherlands
+ B. Fang et al.
+ 3 CHALLENGESANDOURSOLUTIONS
+ Although Leap Motion has shown its superiority over other sens
+ing modalities on capturing key characteristics of ASL signs, there
+ is a significant gap between the raw skeleton joints data and the
+ translated ASL. In this section, we describe the challenges on trans
+forming the raw skeleton joints data into translated ASL at both
+ word and sentence levels. We also explain how DeepASL effectively
+ addresses those challenges.
+ ASLCharacteristics Extraction: Leap Motion is not designed for
+ ASLtranslation. Although Leap Motion captures the skeleton joints
+ of the fingers, palms and forearms, the key information that char
+acterizes ASL signs (i.e., hand shape, hand movement, and relative
+ location of two hands) is still buried in the raw skeleton joints data.
+ To address this challenge, we leverage domain knowledge of ASL
+ to extract spatio-temporal trajectories of ASL characteristics from
+ the sequence of skeleton joints during signing, and develop models
+ upon the extracted ASL characteristics for ASL translation.
+ ASLCharacteristics Organization: Theextracted ASL character
+istics are isolated and unorganized, and thus cannotbedirectlyused
+ for ASL translation. This problem is exacerbated when the number
+ of ASL signs to be translated scales up. To address this challenge,
+ we propose a hierarchical model based on deep recurrent neural
+ network (RNN) that effectively integrates the isolated low-level
+ Sentence-Level	Translation
+ 1
+ Probability
+ 0
+ “I”	
+“Want”
+ Word-Level	Translation
+ Representation
+ Left	Hand	
+Representation
+ Left
+ Hand	Shape Left	Hand	
+Movement
+ Representation
+ Right
+ Hand	Shape
+ ASL	Characteristics	Extraction
+ Left
+ Left	Hand	
+Recognized	
+ASL	Sentences
+ “I	want	to	
+drink.”
+ time
+ “Drink”
+ Two-Hand	
+Right	Hand	
+Right	Hand	
+Movement
+ Right
+ “…	…	…”
+ Recognized	
+ASL	Words
+ “I”
+ “Want”
+ “…”
+ Right	Hand	
+Hand	Shape
+ Movement
+ Skeleton	Joints	Extraction
+ Hand	Shape
+ Movement
+ ASLcharacteristics into an organized high-level representation that
+ can be used for ASL translation.
+ Similarity between Different Signs: Although each ASL sign is
+ uniquely characterized by its ASL characteristics trajectories, many
+ ASLsignsshareverysimilar characteristics at the beginning of their
+ trajectories (see Figure 4 as an example). This similarity confuses
+ Figure 5: The system architecture of DeepASL.
+ to pause between adjacent signs when signing one sentence. To
+ traditional RNN which is based on a unidirectional architecture.
+ This is because the unidirectional architecture can only use the
+ past information at each time point in the trajectory to infer the
+ sign being performed. To address this challenge, we propose a
+ bidirectional RNN model which performs inference at each point of
+ the trajectory based on both past and future trajectory information.
+ With the global view of the entire trajectory, our bidirectional RNN
+ model is able to achieve better ASL translation performance.
+ Want
+ What
+ 0
+ 0.3
+ 0.6
+ 0.9
+ Time (s)
+ 1.2
+ 1.5
+ 1.8
+ Figure 4: Similarity between two ASL signs: “want” and “what”.
+ ASL Sentence Translation: To translate ASL sentences, existing
+ sign language translation technologies adopt a framework which re
+quires pre-segmenting individual words within the sentence. How
+ever, this framework restricts sign language translation technolo
+gies to translate one single sign at a time and thus requires users
+ address this challenge, we propose to adopt a framework based on
+ Connectionist Temporal Classification (CTC) that computes the
+ probability of the whole sentence directly, and therefore, removes
+ the requirement of pre-segmentation.
+ To the best of our knowledge, DeepASL is the first ASL trans
+lation framework that addresses these challenges and achieves
+ accurate ASL translation performance at word and sentence levels.
+ 4 SYSTEMOVERVIEW
+ Figure 5 provides an overview of the multi-layer system architec
+ture of DeepASL. Specifically, at the first layer, a temporal sequence
+ of 3D coordinates of the skeleton joints of fingers, palms and fore
+arms is captured by the Leap Motion sensor during signing. At
+ the second layer, the key characteristics of ASL signs including
+ hand shape, hand movement and relative location of two hands are
+ extracted from each frame of the sequence, resulting in a number
+ of spatio-temporal trajectories of ASL characteristics. At the third
+ layer, DeepASL employs a hierarchical bidirectional deep recurrent
+ neural network (HB-RNN) that models the spatial structure and
+ temporal dynamics of the spatio-temporal trajectories of ASL char
+acteristics for word-level ASL translation. Finally, at the top layer,
+ DeepASL adopts a CTC-based framework that leverages the cap
+tured probabilistic dependencies between words in one complete
+ sentence and translates the whole sentence end-to-end without re
+quiring users to pause between adjacent signs. In the next section,
+ we describe the design of DeepASL in details.
+DeepASL
+ SenSys ’17, November 6–8, 2017, Delft, Netherlands
+ 5 SYSTEMDETAILS
+ 5.1 ASLCharacteristics Extraction
+ TheskeletonjointsdataprovidedbytheLeapMotionsensorisnoisy
+ in its raw form. As our first step, we apply a simple Savitzky-Golay
+ f
+ ilter [37] to improve the signal to noise ratio of the raw skeleton
+ joints data. We select the Savitzky-Golay filter because of its effec
+tiveness in smoothing skeleton joints data [16, 48]. Specifically, let
+ Ji,j,t = (xi,j,t,yi,j,t,zi,j,t ), i = {lef t,riдht}, j = {1, ...,N}, t =
+ {1, ...,T } denote the t-th frame of the temporal sequence of the 3D
+ coordinates of the skeleton joints of fingers, palms and forearms of
+ a single ASL sign, where x,y, z denote the 3D coordinates of the
+ skeleton joints, i is the hand index, j is the skeleton joint index (see
+ Figure 6 for the skeleton joints tracked by the Leap Motion sensor),
+ t is the frame index, N denotes the total number of skeleton joints
+ in one hand, andT denotes the total number of frames included in
+ the temporal sequence. The Savitzky-Golay filter is designed as
+ hand movement, respectively. We denote them as Sriдht, Mriдht,
+ Slef t, and Mlef t accordingly.
+ 5.2 Word-Level ASL Translation
+ In this section, we first provide the background knowledge of bidi
+rectional recurrent neural network (B-RNN) and Long Short-Term
+ Memory(LSTM)tomakethepaperself-contained.Wethendescribe
+ our proposed hierarchical bidirectional deep recurrent neural net
+work (HB-RNN) which is designed upon B-RNN and LSTM for
+ single-sign word-level ASL translation. Finally, we describe the
+ architectures of four comparative models that we use to validate
+ the design choice of our proposed model.
+ 5.2.1 A Primer on Bidirectional RNN and LSTM.
+ RNNis a powerful model for sequential data modeling [18]. It has
+ 80 cm
+ Ji,j,t = (−3Ji,j,t−2 +12Ji,j,t−1 +17Ji,j,t +12Ji,j,t+1 −3Ji,j,t+2)/35
+ (1)
+ where Ji,j,t denotes the smoothed 3D coordinates of the skeleton
+ joints in the t-th frame. (b)
+ been widely used and has shown great success in many impor
+tant tasks such as speech recognition [20], natural language pro
+cessing [39], language translation [41], and video recognition [15].
+ Specifically, given an input temporal sequence x = (x1,x2,...,xT),
+ where in our case xt is the t-th frame of the spatio-temporal ASL
+ characteristics trajectories, the hidden states of a recurrent layer
+ h =(h1,h2,...,hT ) and the output y = (y1,y2,...,yT) of a RNN can
+ be obtained as: Skeleton Joint
+ Bone
+ Extended Bone
+ Elbow
+ ht =θh(Wxhxt +Whhht−1 +bh)
+ yt =θy(Whoht +bo)
+ (4)
+ (5)
+ whereWxh,Whh, andWho are connection weight matrices,bh and
+ bo are bias values, and θh and θy are activation functions.
+ TheRNNmodeldescribedaboveonlycontains a single recurrent
+ Figure 6: The skeleton joints tracked by the Leap Motion sensor.
+ (a)
+ Based on the smoothed temporal sequence of the skeleton joints
+ data, we extract the key characteristics of ASL signs including hand
+ shape, handmovementandrelativelocation oftwohandsfromeach
+ frame of the sequence. Specifically, since hand shape is independent
+ of the absolute spatial location of the hand and is characterized by
+ the relative distances among skeleton joints of palm and fingers, we
+ extract hand shape information of both left and right hands by zero
+centering the palm center of the right hand and then normalizing
+ the 3D coordinates of the skeleton joints to it as
+ Si,j,t = Ji,j,t − Ji,j=riдht_palm_center,t.
+ (2)
+ By doing this, the information of the relative location of the left
+ hand to the right hand is also encoded in Si=left,j,t. Lastly, we
+ extract hand movement information of both left and right hands
+ as the spatial displacement of each skeleton joint between two
+ consecutive frames defined as
+ Mi,j,t = (0,0,0),
+ if t = 1
+ Ji,j,t − Ji,j,t−1, if t = 2,...,T.
+ (3)
+ Taken together, the ASL characteristics extracted from each
+ frame of the temporal sequence of 3D coordinates of the skeleton
+ joints result in four spatio-temporal ASL characteristics trajectories
+ that capture information related to: 1) right hand shape, 2) right
+ hand movement, 3) left hand shape (it also encodes the information
+ of the relative location of the left hand to the right hand), and 4) left
+ hidden layer and is unidirectional. One limitation of the unidirec
+tional RNN is that it could only look backward and thus can only
+ access the past information at each time point in the temporal se
+quence for inference. In the context of sign language translation,
+ this limitation could cause translation errors when different signs
+ share very similar characteristics at the beginning of the signs. To
+ address this limitation, we propose to use bidirectional RNN (B
+RNN) [38] as the building block in our design. Figure 7 illustrates
+ the network architecture of a B-RNN. As shown, B-RNN has two
+ separate recurrent hidden layers, with one pointing backward (i.e.,
+ backward layer) and the other pointing forward (i.e., forward layer).
+ As such, a B-RNN can look both backward and forward, and can
+ thus utilize both the past and future information at each time point
+ in the temporal sequence to infer the sign being performed.
+ The recurrent structure of RNN enables it to learn complex tem
+poral dynamics in the temporal sequence. However, it can be diffi
+cult to train aRNNtolearnlong-termdynamicsduetothevanishing
+ and exploding gradients problem [21]. To solve this problem, Long
+ Output
+ Backward Layer
+ Forward Layer
+ Input
+ 𝑦t−1
+ ℎt−1
+ ℎt−1
+ 𝑥t−1
+ 𝑦t
+ ℎt
+ ℎt
+ 𝑥t
+ 𝑦t+1
+ ℎt+1
+ ℎt+1
+ 𝑥t+1
+ ℎt
+ Backward Recurrent Units
+ ℎt 
+Forward Recurrent Units
+ Figure 7: The network architecture of bidirectional RNN (B-RNN).
+SenSys’17,November6–8,2017,Delft,Netherlands B.Fangetal.
+ B-RNN (bl1)
+ Fusion 
+(fl1) B-RNN 
+(bl2)
+ B-RNN (bl3) Fusion 
+(fl2) Fully
+ Connected 
+(fc)
+ Softmax
+ (sm)
+ Right
+ Hand 
+Shape
+ Right
+ Hand 
+Movement
+ Left
+ Hand 
+Shape
+ Left
+ Hand 
+Movement
+ Low-Level 
+ASLCharacteristics
+ Mid-Level 
+Right/Left Hand 
+Representation
+ High-Level 
+Single-Sign 
+Representation
+ Forward Recurrent Units
+ Backward Recurrent Units
+ Input
+ Figure8:Thearchitectureofthehierarchicalbidirectionaldeepre
+currentneuralnetwork(HB-RNN)forword-levelASLtranslation.
+ ForASLsignsthatareperformedusingonlyonehand,onlythecor
+respondinghalfoftheHB-RNNmodelisactivated.
+ Short-TermMemory(LSTM)[22]wasinventedwhichenablesthe
+ networktolearnwhentoforgetprevioushiddenstatesandwhen
+ toupdatehiddenstatesgivennewinput.Thismechanismmakes
+ LSTMveryefficientatcapturingthelong-termdynamics.Given
+ thisadvantage,weuseB-RNNwithLSTMarchitectureinourdesign
+ tocapturethecomplextemporaldynamicsduringsigning.
+ 5.2.2 HierarchicalBidirectionalRNNforSingle-SignModeling.
+ Althoughfourspatio-temporalASLcharacteristicstrajectorieshave
+ beenextractedfromtherawskeletonjointsdata,theyareisolated
+ andatlowlevel,andthuscannotbedirectlyusedforword-level
+ ASLtranslation.Therefore,weproposeahierarchicalmodelbased
+ onbidirectionaldeeprecurrentneuralnetworkwiththeLSTM
+ architecture(HB-RNN)tointegratetheisolatedlow-levelASLchar
+acteristicsintoanorganizedhigh-levelrepresentationthatcanbe
+ usedforword-levelASLtranslation.
+ Figure8illustratesthearchitectureoftheproposedHB-RNN
+ model.Atahighlevel,ourHB-RNNmodeltakesthefourspatio
+temporalASLcharacteristicstrajectoriesasitsinput,extractsthe
+ spatialstructureandthetemporaldynamicswithinthetrajecto
+ries,andcombinestheminahierarchicalmannertogeneratean
+ integratedhigh-levelrepresentationofasingleASLsignforword
+levelASLtranslation.Asshown,ourHB-RNNmodelconsistsof
+ sevenlayersincludingthreeB-RNNlayers(bl1,2,3),twofusionlay
+ers(fl1,2),onefullyconnectedlayer(fc),andonesoftmaxlayer
+ (sm).Eachoftheselayershasdifferentstructureandthusplays
+ differentroleinthewholemodel.Specifically, inthebl1layer,the
+ fourspatio-temporalASLcharacteristicstrajectoriesthatcapture
+ informationrelatedtotherighthandshape(Sriдht), righthand
+ movement(Mriдht), lefthandshape(Sleft),andlefthandmove
+ment(Mleft)arefedintofourseparateB-RNNs.TheseB-RNNs
+ capturethespatialstructureamongskeletonjointsandtransform
+ thelow-levelASLcharacteristicsintonewrepresentationsofright
+ handshape,righthandmovement, lefthandshape,andlefthand
+ movementinbothforwardlayer −→ handbackwardlayer←− h.Inthe
+ fusionlayer fl1,weconcatenatethenewlygeneratedrepresen
+tationsofright(left)handshapeandright(left)handmovement
+ togetherasRi,t
+ bl1
+ ={−→ ht
+ bl1
+ (St
+ i ),←− ht
+ bl1
+ (St
+ i ), −→ ht
+ bl1
+ (Mt
+ i ),←− ht
+ bl1
+ (Mt
+ i )}, i=
+ {riдht,left},andfeedthetwoconcatenationsintotwoB-RNNsin
+ thebl2 layerseparatelytoobtainanintegratedrepresentationof
+ theright(left)hand.Similarly,thetwonewlygeneratedrightand
+ lefthandrepresentationsarefurtherconcatenatedtogetherinthe
+ fusionlayerfl2denotedasRt
+ bl2
+ .Thisconcatenationisthenfedinto
+ theB-RNNinthebl3layertoobtainahigh-levelrepresentationin
+ bothforwardlayerandbackwardlayer(denotedas −→ ht
+ bl3
+ (Rt
+ bl2
+ )and
+ ←− ht
+ bl3
+ (Rt
+ bl2
+ ))thatintegratesalltheASLcharacteristicsofasingle
+ sign.Finally,weconnect −→ ht
+ bl3
+ (Rt
+ bl2
+ )and←− ht
+ bl3
+ (Rt
+ bl2
+ ) tothefully
+ connectedlayerfc.Theoutputof fcissummedupacrossallthe
+ framesinthetemporalsequenceandthennormalizedbythesoft
+maxfunctioninthesoftmaxlayersmtocalculatethepredicted
+ wordclassprobabilitygivenasequenceJ:
+ O=
+ T
+ t=1
+ Ot
+ fc (6)
+ p(Ck|J)= eOk
+ C
+ n=1eOn
+ ,k=1,...,C (7)
+ whereCdenotesthetotalnumberofASLwordsinthedictionary.
+ Byaccumulatingresultsandnormalizingacrossalltheframes,our
+ model isabletomakeinferencebasedontheinformationofthe
+ entiresequence.Moreimportantly, itallowsourmodeltohandle
+ ASLsignsthathavedifferentsequencelengthsaswellassequence
+ lengthvariationcausedbysigningspeed.
+ 5.2.3 ComparativeModels.
+ TovalidatethedesignchoiceofourproposedHB-RNNmodel,we
+ constructfourcomparativemodelsasfollows:
+ •HB-RNN-M:ahierarchicalbidirectionalRNNmodelwithhand
+ movementinformationonly.WecomparethismodelwithHB
+RNNtoprovetheimportanceofthehandshapeinformation.
+ •HB-RNN-S:ahierarchicalbidirectionalRNNmodelwithhand
+ shapeinformationonly.WecomparethismodelwithHB-RNN
+ toprovetheimportanceofthehandmovementinformation.
+ •SB-RNN:asimplebidirectionalRNNmodelwithouthierarchi
+calstructure.WecomparethismodelwithHB-RNNtoprove
+ theimportanceofthehierarchicalstructure.
+ •H-RNN:ahierarchicalunidirectionalRNNmodelwithforward
+ recurrentlayeronly.WecomparethismodelwithHB-RNNto
+ provethesignificanceofthebidirectionalconnection.
+ TheparametersoftheproposedHB-RNNmodelaswellasthe
+ fourcomparativemodelsarelistedinTable2.
+ 5.3 Sentence-LevelASLTranslation
+ Indaily-lifecommunication,adeafpersondoesnotsignasingle
+ wordbutacompletesentenceatatime.AlthoughtheHB-RNN
+ modeldescribedintheprevioussectioniscapableoftransforming
+ thelow-levelASLcharacteristicsintoahigh-levelrepresentationfor
+ word-leveltranslation,whentranslatingacompleteASLsentence,
+ HB-RNNstill requirespre-segmentingthewholesentenceinto
+ individualwordsandthenconnectingeverytranslatedwordintoa
+ sentenceinthepost-processing.Thisisnotonlycomplicatedbut
+DeepASL
+ SenSys ’17, November 6–8, 2017, Delft, Netherlands
+ Category
+ Model
+ HB-RNN-M 2×1×128
+ RNNLayer 1 RNNLayer2 RNNLayer3--
+ One-Hand
+ ASL
+ Words
+ HB-RNN-S
+ 2 ×1×128--
+ SB-RNN
+ 2 ×1×128--
+ H-RNN
+ 1 ×2×64
+ 1 ×1×128
+HB-RNN
+ 2 ×2×32
+ 2 ×1×64
+HB-RNN-M
+ 2 ×2×64
+ 2 ×1×128
+Two-Hand
+ ASL
+ Words
+ HB-RNN-S
+ 2 ×2×64
+ 2 ×1×128
+SB-RNN
+ 2 ×1×256--
+ H-RNN
+ 1 ×4×64
+ 1 ×2×64
+ 1 ×1×128
+ HB-RNN
+ 2 ×4×32
+ 2 ×2×32
+ 2 ×1×64
+ Table 2: The parameters of our proposed HB-RNN model and the
+ four comparative models. The parameters follow the format of 1
+ (unidirectional) or 2 (bidirectional) × #RNNs × #hidden units.
+ also requires users to pause between adjacent signs when signing
+ one sentence, which is not practical in daily-life communication.
+ To address this problem, we propose a probabilistic approach
+ based on Connectionist Temporal Classification (CTC) [19] for
+ sentence-level ASL translation. CTC is the key technique that drives
+ the modern automatic speech recognition systems such as Apple
+ Siri and Amazon Alexa [31]. It eliminates the necessity of word
+ pre-segmentation and post-processing, allowing end-to-end trans
+lation of a whole sentence. Inspired by its success on sentence-level
+ speech recognition, we propose a CTC-based approach that can
+ be easily built on top of the HB-RNN model described in the pre
+vious section for sentence-level ASL translation. Specifically, to
+ realize sentence-level ASL translation based on CTC, we make the
+ following modifications on HB-RNN:
+ • LetV denote the ASL word vocabulary. We add a blank symbol
+ {blank} into the ASL word vocabulary: V′ = V ∪ {blank}.
+ Essentially, this blank symbol enables us to model the transition
+ from one word to another within a single sentence.
+ • Weincrease the capacity of the RNN layers (i.e.,bl1,bl2 andbl3)
+ in HB-RNNto2×4×32,2×2×64,and2×1×128,respectively
+ (see Table 2 for the format definition). This is because ASL
+ sentences are more complex than ASL words and thus require
+ more parameters for modeling.
+ • Since an ASL sentence consists of multiple signs, we replace
+ the softmax layer in HB-RNN which computes the probability
+ of a single sign with a new softmax layer which computes the
+ probabilities of a sequence of multiple signs.
+ • Based on the modified softmax layer, the probabilities of all the
+ possible sentences formed by the word included in V can be
+ computed. Given those probabilities, we compute the proba
+bility of a target label sequence by marginalizing over all the
+ sequences that are defined as equivalent to this sequence. For
+ example, the label sequence ′SL′ is defined as equivalent to the
+ label sequences ′SSL′, ′SLL′, ′S L′ or ′SL ′, where ′ ′ denotes
+ the blank symbol {blank}. This process not only eliminates the
+ need for word pre-segmentation and post-processing but also
+ addresses variable-length sequences.
+ • Finally, we delete adjacent duplicate labels and remove all the
+ blank symbols in the inferred label sequence to derive the trans
+lated sentence.
+ With all the above modifications, the end-to-end sentence-level
+ ASL translation is achieved.
+ 6 EVALUATION
+ 6.1 Experimental Setup
+ 6.1.1 Dataset Design.
+ To evaluate the translation performance of DeepASL at both word
+ and sentence levels as well as its robustness under real-world set
+tings, we have designed and collected three datasets: 1) ASL Words
+ Dataset; 2) ASL Sentences Dataset; and 3) In-the-Field Dataset.
+ ASL Words Dataset: Since it is impossible to collect all the words
+ in the ASL vocabulary, we target ASL words that are representative
+ of each category of the ASL vocabulary. In particular, we have
+ selected 56 ASL words from five word categories: pronoun, noun,
+ verb, adjective and adverb. Table 3 lists the selected 56 ASL words.
+ These words are among the top 200 most commonly used words in
+ ASL vocabulary. Among these 56 words, 29 are performed by two
+ hands and the rest 27 are performed by one hand (right hand).
+ Category
+ Words
+ pronoun who,I, you, what, we, my, your, other
+ noun
+ time, food, drink, mother, clothes, box, car, bicycle,
+ book, shoes, year, boy, church, family
+ verb
+ want, dontwant, like, help, finish, need, thankyou,
+ meet, live, can, come
+ adjective
+ adverb
+ big, small, hot, cold, blue, red, gray, black, green,
+ white, old, with, without, nice, bad, sad, many,
+ sorry, few
+ where, more, please, but
+ Table 3: The ASL Words Dataset (two-hand words are underlined).
+ ASL Sentences Dataset: We have followed the dataset design
+ methodology used in Google’s LipNet (i.e., sentence-level lipread
+ing) [9] to design our ASL Sentences Dataset. Specifically, we de
+sign the ASL sentences by following a simple sentence template:
+ subject(4) +predicate(4) + attributive(4) +object(4), where the su
+perscript denotes the number of word choices for each of the four
+ word categories, which are designed to be {I,you,mother,who},
+ {dontwant,like,want,need}, {biд,small,cold,more} and {time,
+ f ood,drink,clothes}, respectively. Based on this sentence template,
+ a total of 256 possible sentences can be generated. Out of these 256
+ sentences, we hand picked 100 meaningful sentences that people
+ would use in daily communication. Example meaningful sentences
+ are "I need more food" and "Who want cold drink".
+ In-the-Field Dataset: In daily life, deaf people may need to use
+ ASL to communicate with others under various real-world settings.
+ Weconsider three common real-world factors that can potentially
+ affect the ASL translation performance: 1) lighting conditions, 2)
+ body postures; and 3) interference sources. For lighting conditions,
+ we collected data from both indoor poor lighting scenario and out
+door bright sunlight scenario. For body postures, we collected data
+ when signs are performed while the signer stands or walks. For in
+terference sources, we considered two interference sources: people
+ anddevice. In terms of people interference, data was collected while
+ another person stands in front of Leap Motion with both of her
+ hands appearing in the viewing angle of the Leap Motion sensor.
+ This setup simulates the communication scenario between a deaf
+ person andanormalhearingperson.Intermsofdeviceinterference,
+ data was collected while another person is wearing Leap Motion
+SenSys ’17, November 6–8, 2017, Delft, Netherlands
+ B. Fang et al.
+ 101 0 0 3 0 0 0 0 0 0 0 0 6 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ standing near the user. This setup simulates the communication
+ scenario where there are more than one person using DeepASL.
+ 6.1.2 Participants.
+ Our study is approved by IRB. Due to the IRB constraint, we could
+ only recruit people with normal hearing ability to participate in the
+ study. We recruited 11 participants and hosted an 3-hour tutorial
+ session to teach them how to perform the target ASL signs using
+ online ASL tutorial videos. The 11 participants (four female) are
+ between 20 to 33 (µ = 24.2) years old, weighted between 49 kg to 86
+ kg (µ = 74 kg) and are between 155 cm to 185 cm tall (µ = 173 cm).
+ 6.1.3 Summary of Datasets.
+ Table 4 summarizes the amount of data collected in the three
+ datasets. Specifically, for ASL Words Dataset, we collected 56 ASL
+ words with 10 (±3) samples of each word from each of the 11 partic
+ipants. In total, 3, 068 and 3,372 samples of one-hand and two-hand
+ ASL words were collected, respectively. For ASL Sentences Dataset,
+ we randomly collected 80 (±3) out of the 100 meaningful sentences
+ from each of the 11 participants. In total, 866 sentences were col
+lected. For In-the-Field Dataset, for each of the six scenarios, we
+ randomly selected 25 out of the 56 ASL words and collected 3 (±1)
+ samples of each word from three out of the 11 participants. To
+ the best of our knowledge, our datasets are the largest and the
+ most comprehensive datasets in the sign language translation liter
+ature [10, 14, 26, 32, 43, 47].
+ Category
+ ASL Words
+ Subcategory One-hand Two-hand
+ Duration (s)
+ 7541.7
+ Frames
+ 821846
+ 8616.3
+ 949310
+ ASL
+ Sentences
+ 5094.3
+ 507001
+ In-the
+Field
+ 2498.4
+ Total
+ 23750.7
+ 259431 2537588
+ Samples
+ 3068
+ 3372
+ 866
+ Table 4: Summary of datasets
+ 6.1.4 Evaluation Metrics and Protocol.
+ 1178
+ 8484
+ EvaluationMetrics:Weusedifferentmetricstoevaluatethetrans
+lation performance of DeepASL at the word and sentence levels.
+ Specifically, at the word level, we use word translation accuracy,
+ confusion matrix, and Top-K accuracy as evaluation metrics. At the
+ sentence level, we use word error rate (WER) as the evaluation met
+ric, which is defined as the minimum number of word insertions,
+ substitutions, and deletions required to transform the prediction
+ into the groundtruth, divided by the numberofwordsintheground
+ truth.WER is also the standard metric for evaluating sentence-level
+ translation performance of speech recognition systems.
+ Evaluation Protocol: At both word and sentence levels, we use
+ leave-one-subject-out cross-validation as the protocol to examine
+ the generalization capability of DeepASL across different subjects.
+ In addition, to evaluate the performance of DeepASL in translating
+ unseen sentences, we randomly divide ASL sentences into ten folds,
+ making sure that each fold contains unique sentences to the rest
+ nine folds. We then use ten-fold cross-validation as the protocol.
+ 6.2 Word-Level Translation Performance
+ Figure 11 shows the average word-level ASL translation accuracy
+ across 11 participants. Overall, DeepASL achieves an average accu
+racy of 94.5% on translating 56 ASL words across 11 participants.
+ This is a very impressive result considering it is achieved based
+ 0 100 2 0 2 0 0 0 0 0 0 0 0 0 5 0 0 0 1 0 0 0 0 0 0 0 0
+ 0 0 101 0 0 0 0 0 0 0 2 1 1 0 0 3 2 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 108 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 1 0 0109 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0108 1 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0105 6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2
+ 0 0 1 0 0 0 10 98 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0
+ 0 0 0 0 0 4 0 0103 0 0 0 0 1 0 0 0 0 0 0 3 0 0 0 0 0 0
+ 0 0 0 0 0 1 0 0 2 98 0 0 1 1 0 0 2 0 0 0 1 4 0 0 0 0 0
+ 0 0 1 0 0 0 0 0 0 0111 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0109 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0
+ 0 0 0 2 0 0 0 0 0 0 0 0109 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 6 1 0 0 0113 0 0 0 0 0 0 1 0 2 0 0 0 0
+ 0 6 0 0 0 0 0 0 0 0 0 0 0 0112 0 0 0 0 0 0 0 0 0 0 0 0
+ Ground Truth
+ Ground Truth
+ 0 0 0 0 4 0 0 0 2 0 0 0 0 0 0107 0 0 1 0 0 0 5 0 0 0 0
+ 0 0 1 1 0 0 3 0 0 0 0 0 0 0 0 0104 3 0 0 0 0 0 0 1 1 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1115 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 1 0 0 0 5 0 0 0 0 0 0 0 0 0112 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0117 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 1 8 5 0 0 0 1 0 0 0 0 0 0101 1 0 0 0 0 0
+ 2 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 2113 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0119 0 0 0 0
+ 0 0 0 0 2 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0103 1 0 0
+ 0 1 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1110 0 0
+ 27 26 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1
+ 29 28 272625242322212019181716151413121110 9 8 7 6 5 4 3 2 1
+ 0 0 0 4 0 0 0 0 0 0 1 0 1 0 0 0 1 0 0 0 0 0 0 0 0105 0
+ 0 0 0 0 0 0 3 0 0 0 0 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0106
+ 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27
+ Predicted
+ 0
+ 25
+ 50
+ 75
+ 100
+ Figure 9: Confusion matrix of 27 one-hand ASL words.
+ 105 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3 0 0 0 1 1 0 0 0 0 0 0
+ 0 102 0 0 0 0 0 0 0 0 0 0 1 1 0 0 0 3 0 0 0 0 0 3 0 0 0 0 0
+ 0 0 109 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0
+ 0 0 0104 0 3 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 1 0 0 0 0 0 0 0
+ 0 0 0 0108 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0
+ 0 0 0 8 0 97 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 0 0 0 0 3
+ 0 0 0 0 0 0106 0 0 2 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 01080 0 0 0 0 0 0 0 0 0 4 0 0 1 0 0 0 0 0 0 0
+ 0 0 1 0 0 0 0 01070 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0
+ 7 0 0 0 0 0 0 1 01010 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 01091 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 01090 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 1 0 0 0 0 0 0 0 0 01190 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0
+ 0 1 4 0 0 0 0 0 0 0 0 0 01270 0 0 1 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 1 0 1 0 0 0 0 0 0 0 01071 0 0 0 3 0 0 0 1 0 1 1 0 0
+ 0 0 0 0 0 0 0 0 0 4 0 0 0 0 71090 0 0 0 0 0 0 0 0 0 0 0 1
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 01130 0 0 0 0 0 0 0 0 4 2 0
+ 0 0 0 0 0 0 0 0 0 2 0 1 0 0 0 0 01140 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 01170 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 01190 0 0 0 0 0 0 1 0
+ 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 01170 0 0 0 0 0 0 4
+ 0 0 0 0 6 0 0 1 1 0 0 6 0 0 0 0 0 0 0 0 01070 0 0 0 0 0 0
+ 0 0 3 0 0 0 0 0 0 1 0 0 0 0 0 0 0 2 0 0 0 01130 0 0 0 0 0
+ 0 1 2 0 0 0 0 0 3 0 0 0 0 0 0 2 6 0 0 1 0 0 01050 0 1 0 0
+ 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 01120 1 0 0
+ 0 0 0 0 0 0 0 8 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 01150 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 01211 0
+ 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 3 0 1 0 0 0 0 0 0 0 01130
+ 0 0 0 0 0 0 0 0 1 0 0 0 0 1 2 1 0 0 0 3 4 0 0 0 0 0 0 6 97
+ 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29
+ Predicted
+ 0
+ 25
+ 50
+ 75
+ 100
+ Figure 10: Confusion matrix of 29 two-hand ASL words.
+ on leave-one-subject-out cross validation protocol. Further, we ob
+serve that the margin between the highest (participant#1, 98.4%)
+ and the lowest (participant#11, 90.6%) accuracies is small. This in
+dicates that our HB-RNN model is capable of capturing the key
+ characteristics of ASL words. Furthermore, the standard deviation
+ of these accuracies is as low as 2.4%, which also demonstrates the
+ generalization capability of our model across different users.
+ To provide a more detailed view of the result, Figure 9 and 10
+ show the confusion matrices of translating 27 one-hand ASL words
+ and 29 two-hand ASL words, respectively. As shown in Figure 9,
+ amongallthe27one-handASLwords,onlyplease(word#20)achieves
+ 100% in both precision and recall. This is because please has very
+ distinctive hand shape and hand movement characteristics. In con
+trast, hot (word#9) achieves the lowest precision of 81.1% and bad
+ (word#21) achieves the lowest recall of 86.3%. Similarly, as shown
+DeepASL SenSys’17,November6–8,2017,Delft,Netherlands
+ 37 52 38
+ 122128
+ 64 77 65
+ 161159
+ 218 224
+ 205
+ 185185
+ 10264388
+ 746
+ 235368 208
+ 1943
+ 63156282
+ 560
+ 4154
+ Figure11:Word-levelASLtranslationaccu
+racyacross11participants.
+ 37 52 38
+ 122128
+ 64 77 65
+ 161159
+ 218 224
+ 205
+ 185185
+ 10264388
+ 746
+ 235368 208
+ 1943
+ 63156282
+ 560
+ 4154
+ Figure12:Top-10WERintranslatingASL
+ sentencesofunseenparticipants.
+ 37 52 38
+ 122128
+ 64 77 65
+ 161159
+ 218 224
+ 205
+ 185185
+ 10264388
+ 746
+ 235368 208
+ 1943
+ 63156282
+ 560
+ 4154
+ Figure13:Top-10WER intranslatingun
+seensentences.
+ inFigure10,amongallthe29two-handASLwords,big(word#7)
+ achieves100%inprecisionandbicycle(word#19)achieves100%in
+ recall,whereaswith(word#15)hasthelowestprecisionof90.7%
+ andbut (word#29)hasthelowestrecallof84.3%.
+ 6.3 TheNecessityofModelComponents
+ TovalidatethedesignchoiceofourproposedHB-RNNmodel,we
+ comparethetranslationperformancebetweenHB-RNNandfour
+ comparativemodelsintroducedinsection5.2.3.Tomakeafaircom
+parison,wesetthenumberofhiddenunitsofeachmodelsuchthat
+ thetotalnumberofparametersofeachmodelisroughlythesame.
+ WeusetheASLWordsDatasettoevaluatethesemodels.Table5
+ liststheevaluationresultsintermsofaverageTop-K(K=1,2,3)
+ accuraciesandstandarddeviationsacross11participants.Aslisted,
+ ourproposedHB-RNNmodeloutperformsall fourcomparative
+ modelsacrossallthreeTop-Kmetrics.Specifically,ourHB-RNN
+ modelachievesan5.1%,5.0%,3.4%and0.8%increaseinaverage
+ Top-1accuracyoverthefourcomparativemodels, respectively.
+ ThisresultdemonstratesthesuperiorityofourHB-RNNmodel
+ overthefourcomparativemodels.Italsoindicatesthatthehand
+ shapeinformation,handmovementinformation,thehierarchical
+ structure,aswellasthebidirectionalconnectioncaptureimportant
+ andcomplimentaryinformationaboutthetheASLsigns.Bycom
+biningtheseimportantandcomplimentaryinformation,thebest
+ word-leveltranslationperformanceisachieved.
+ Model Top-1(%) Top-2(%) Top-3(%) Note
+ HB-RNN-M 89.4±3.1 95.4±1.8 97.2±1.2 Nohandshape
+ HB-RNN-S 89.5±2.4 94.9±1.7 97.0±1.3 Nohandmovement
+ SB-RNN 91.1±3.4 96.5±1.7 98.2±1.2 Nohierarchicalstructure
+ H-RNN 93.7±1.7 97.1±0.9 98.1±0.6 Nobidirectionalconnection
+ HB-RNN 94.5±2.4 97.8±1.3 98.7±0.9 Ourmodel
+ Table5:Comparisonofword-levelASLtranslationperformancebe
+tweenHB-RNNandfourcomparativemodels.
+ 6.4 Sentence-LevelTranslationPerformance
+ 6.4.1 PerformanceonUnseenParticipants.
+ WefirstevaluatetheperformanceofDeepASLontranslatingASL
+ sentencesusingleave-one-subject-outcross-validationprotocol.
+ Figure12showstheresultsinTop-10WER.Specifically,theTop-1
+ WERis16.1±3.7%.Itindicatesthatfora4-wordsentence,there
+ isonlyanaverage0.64wordsthatneedseithersubstitution,dele
+tionorinsertion.Thisisaverypromisingresultsconsidering:1)
+ thereare16candidateclasses(16ASLwordsthatconstructthese
+ sentences)ineachframeofthesequence;2)wedonotrestrictthe
+ lengthorthewordorderofthesentenceduringinferenceandthus
+ thereisanenormousamountofpossiblelabelsequences;and3)no
+ languagemodelisleveragedtohelpimprovetheperformance.
+ 6.4.2 PerformanceonUnseenSentences.
+ Wefurtherconductanexperimenttoevaluatetheperformance
+ ofDeepASLontranslatingunseensentences(i.e.,sentencesnot
+ includedinthetrainingset).TheresultsareillustratedinFigure13.
+ Specifically,theTop-1WERis8.2±5.4%.Thisindicatesthatthereis
+ onlyanaverage0.33outof4wordsthatneedssubstitution,deletion
+ andinsertion.Thisisaverypromisingresultconsideringthatthe
+ translatedsentencesarenotincludedinthetrainingset.Asaresult,
+ iteliminatestheburdenofcollectingallpossibleASLsentences.
+ 6.5 RobustnessofASLTranslationintheField
+ Table6liststheword-levelASLtranslationperformanceachieved
+ ontheIn-the-FieldDataset.
+ ImpactofLightingConditions:Underpoorlightingcondition,
+ DeepASLachieves96.8±3.1%accuracy.Itindicatesthatthepoor
+ lightingconditionhasverylimitedimpactontheperformanceof
+ DeepASL.Underoutdoorsunlightcondition,DeepASLachieves91.8
+ ±4.1%accuracy.Thisresultindicatesthatthesignificantportion
+ ofinfraredlightinthesunlightalsohasverylimitedimpactonthe
+ performanceofDeepASL.
+ ImpactofBodyPostures:DeepASLachieves92.2±3.0%and94.9
+ ±4.5%onwalkingandstandingpostures,respectively.Theaccuracy
+ onlydropsslightlycomparingtopreviousASLwordrecognition
+ result,indicatingthatDeepASLcouldalsocaptureinformationwith
+ eitherstandingorsittingbodyposture.Moreover,thisresultalso
+ demonstratestheadvantageofLeapMotionoverinertialsensors
+ whichareverysusceptibletohumanbodymotionartifacts.
+ ImpactofInterferenceSources:DeepASLachieves94.7±3.0%
+ and94.1±1.3%onpeoplein-the-sceneinterferenceandmulti
+deviceinterference,respectively.Inthefirstscenario,theaccuracyis
+ comparabletopreviousASLwordrecognitionresult,meaningthat
+ DeepASLisrobusttothistwointerferencescenarios.Weobserve
+ thatspacedwithsocialdistance,LeapMotionisrarelyconfounded
+ bythehandsofaninterferer.ThisisbecausethecamerasofLeap
+ Motionbothhavefish-eyeangleview,makingthefarobjectstoo
+ smalltobedetected.Asamatteroffact,effectiverangeofLeap
+ Motionisdesignedtobenomorethanapproximately80cm[5],
+ muchlessthanthesocialdistance.Ontheotherhand,oursystem
+SenSys’17,November6–8,2017,Delft,Netherlands B.Fangetal.
+ isnotaffectedbymultipleLeapMotionpresent intheambient
+ environment, indicatingthatDeepASLisrobustwhenmultiple
+ devicesarebeingusedatthesametime.ThisisbecauseLeapMotion
+ onlyusesinfraredtoilluminatethespacewhereASLisperformed
+ andhencetheilluminationdoesnothaveimpactontheinfrared
+ imagescapturedbythesensor.
+ Category Lighting Body Interference
+ Condition Posture Source
+ Subcategory Poor Bright Walk Stand People Device
+ Accuracy(%) 96.8±3.1 91.8±4.3 92.2±3.0 94.9±4.5 94.7±3.4 94.1±1.3
+ Table6:In-the-fieldASLtranslationperformance.
+ 6.6 SystemPerformance
+ Toexaminethesystemperformance,wehaveimplementedDeep
+ASLonthreeplatformswithfivecomputingunits:1)desktopCPU
+ andGPU,2)mobileCPUandGPU,and3)tabletCPU.Ourgoalisto
+ profilethesystemperformanceofDeepASLacrossplatformswith
+ differentcomputingpowers.Specifically,weuseadesktopinstalled
+ withanInteli7-4790CPUandaNvidiaGTX1080GPUtosimulate
+ acloudserver;weuseamobiledevelopmentboardthatcontains
+ anARMCortex-A57CPUandaNvidiaTegraX1GPUtosimulate
+ augmentedrealitydeviceswithbuilt-inmobileCPU/GPU1;andwe
+ useMicrosoftSurfacePro4tabletandrunDeepASLonitsIntel
+ i5-6300CPU.ThespecsofthecomputingunitsarelistedinTable7.
+ Toprovideacomprehensiveevaluation,weevaluatethesystem
+ performanceofthreemodels:1)one-handASLwordtranslation
+ model;2)two-handASLwordtranslationmodel;and3)ASLsen
+tencetranslationmodel.Inthefollowing,wereporttheirsystem
+ performanceintermsofruntimeperformance,runtimememory
+ performance,andenergyconsumption.
+ Platform CPU RAM GPU
+ Cores Speed Cores GFLOPS Speed
+ Desktop 8 3.6GHz 16GB 2560 8228 1.67GHz
+ Mobile 4 1.9GHz 4GB 256 512 1GHz
+ Tablet 2 2.4GHz 4GB--
+Table7:Thespecsofthethreehardwareplatforms.
+ 6.6.1 RuntimePerformance.
+ Aninferencecontainstwoparts:datafetching/preprocessingand
+ forwardfeedingofdeepnetwork.Becausethetimeconsumedby
+ datafetching/preprocessingisnegligiblecomparingtoforwardfeed
+ing,wereportonlytotalinferencetime.Werun200ASLword/sentence
+ recognitionandreporttheaverageruntimeperformance.There
+sultsofruntimeperformanceofthreemodelsonfivecomputing
+ unitsofthreeplatformsareshowninFigure14.Togiveastraight
+forwardview,weorderthetimecost inanascendingorder.At
+ ahighlevel, inferencetakesmuchlongerwhenrunningonthe
+ CPUsthanontheGPUsacrossthreemodels.Indetail,PC-CPUis
+ 8×to9×fasterthanPC-GPU;TX1-CPUis14×to28×fasterthan
+ TX1-GPU.Therearetworeasons: (1)duringinference,onlyone
+ sampleispassingthroughthenetwork,whichsubstantiallylimits
+ thecomponenteligibleforparallelcomputation;and(2)ourmodels
+ 1SinceMircrosoftHololenscurrentlydoesnotsupporthostingUSBclients,wecould
+ notimplementDeepASLinMircrosoftHololenstotestitssystemperformance.
+ arebuiltonRNN,meaningthatitstime-dependencynatureintrin
+sicallyeliminatethepossibilityofparallelism.Therefore,weargue
+ thatduringinferenceCPUsarebetterchoicethanGPUs.Assuch,
+ DeepASLdoesnotneedhigh-endGPUtodoinference. Itisalso
+ worthpointingoutthattheruntimeofASLsentencerecognition
+ islongerthanwordrecognition.ThisisbecauseHB-RNN-CTC
+ forsentencerecognitionhasabouttwiceasmanyparametersas
+ HB-RNNforwordrecognition.Equallyimportant,weobservethat
+ thetimecostonallthreeCPUsarelessthan282ms(ASLsentence
+ recognitiononTX1-CPU)whichmeansDeepASLachievesreal-time
+ recognitionperformance.
+ 37 52 38
+ 122128
+ 64 77 65
+ 161159
+ 218 224
+ 205
+ 185185
+ 10264388
+ 746
+ 235368 208
+ 1943
+ 63156282
+ 560
+ 4154
+ Figure14:Runtimeperformanceofthethreemodels.
+ 6.6.2 RuntimeMemoryUsage.
+ NextwereportthememorycostonvariousplatformsinCPUand
+ GPUmode.Again,webrieflyreporttheaveragememoryusage
+ onthreemodels.Becausememoryallocationhighlydependson
+ operatingsystemanditisdifficulttounravelthememoryusagefor
+ eachpart,weonlyreportthetotalmemoryusageofeachmodel.For
+ allthreeplatforms,wereportphysicalRAMusageandGPUmemory
+ usage.Wereporttheseusagesbecausetheyreflectthememory
+ costofeachmodelandmightindicatethepotentialimprovements.
+ ToclearlyreflecttheinfluenceofthreemodelsonCPU,wereport
+ theRAMusagethatissubtractedbytheRAMusagebeforedoing
+ inference.ThetotalRAMusagewithoutloadingourmodelis2891
+ MBondesktop,931MBonTX1and1248MBonSurface.Figure15
+ showsthememorycostonfivecomputingunitsofthreeplatforms.
+ WeobservethatmemorycostofASLsentenceinferenceislarger
+ thantwohandASLwordinference,whichislargerthanonehand
+ ASLword.ThereasonisthatintheASLsentencemodel,thereare
+ morehiddenunits,thusdemandingmoreallocatedmemory.
+ 37 52 38
+ 122128
+ 64 77 65
+ 161159
+ 218 224
+ 205
+ 185185
+ 102643
+ Figure15:Runtimememoryusageofthethreemodels.
+DeepASL
+ SenSys ’17, November 6–8, 2017, Delft, Netherlands
+ 6.6.3 Energy Consumption.
+ To evaluate the power consumption of DeepASL, we use PWRcheck
+ DCpower analyzer [1] to measure the power consumption of both
+ TX1andSurface tablet. We run 200 ASL word/sentence recognition
+ andreport the average powerconsumption.Table8lists the average
+ power consumption of TX1 and Surface respectively. We report the
+ power consumption of TX1 to simulate augmented reality devices
+ because the TX1 is designed for mobile device real-time artificial
+ intelligence performance evaluation and thus reflects the portion of
+ power consumed by inference in augmented reality devices. We ob
+serve that for TX1 the power consumption of performing inference
+ on GPU is much larger than CPU. This is because: (1) due to the
+ RNNstructure of our model, limited amount of computation can
+ be parallelled, making GPU is less efficient in inference than CPU;
+ and (2) performing inference on GPU also involves processing on
+ CPU (for data loading etc.) and thus costs almost twice as much
+ power as CPU alone.
+ Platform
+ Task
+ Power Time Energy
+ (W)
+ (ms)
+ Idle
+ One-hand ASL word (CPU)
+ Two-hand ASL word (CPU)
+ TX1
+ ASL sentence (CPU)
+ 3.54
+ 5.92
+ 6.13
+ 6.02
+42.9
+ 66.1
+ 281.7
+ (mJ)
+254.0
+ 417.5
+ 1695.8
+ One-hand ASL word (GPU) 12.31 746.2 9185.7
+ Two-hand ASL word (GPU) 12.16 1943.4 23631.7
+ ASL sentence (GPU)
+ 11.75
+ 4153.6 48804.8
+ Sleep
+ 1.63
+Screen-on
+ 8.32--
+ Surface
+ ASL Dictionary App-on
+ 15.75--
+ One-hand ASL word
+ 23.67
+26.1
+ Two-hand ASL word
+ 24.21
+ 591.7
+ 52.7
+ ASL sentence
+ 1117.8
+ 22.13
+ 156.2
+ 3456.7
+ Table 8: Energy consumption on TX1 and Surface.
+ Finally, in Table 9, we report the estimated number of ASL
+ word/sentence recognition that can be completed by TX1 and Sur
+face, using fully-charged battery of Hololens (16.5 Wh) and Surface
+ (38.2 Wh), respectively. For TX1, the number of inferences of CPU
+ is 36×, 57× and 29× larger than those of its GPU for three model
+ respetively. It means that in terms of performing inference, CPU is
+ more suitable. Meanwhile, despite the power consumption from
+ other sources, a Hololens/Surface equal volume battery could sup
+port enough number of inferences within one day.
+ Platform
+ TX1
+ Task
+ CPU GPU
+ One-hand ASL word 233888 6467
+ Two-hand ASL word 142291 2514
+ ASL sentence
+ 35028
+ One-hand ASL word 232420
+ Surface
+ Two-hand ASL word 123031
+ ASL sentence
+ 1217--
+ 39784
+Table 9: Estimated number of inferences on TX1 andSurface with a
+ 16.5 Wh (Hololens) and 38.2 Wh (Surface) battery, respectively.
+ 7 APPLICATIONS
+ The design of DeepASL enables a wide range of applications. To
+ demonstrate the practical value of DeepASL, we have developed
+ two prototype applications based on DeepASL. In this section, we
+ briefly describe these two prototype applications.
+ 7.1 Application#1: Personal Interpreter
+ Use Scenario: For the first application, DeepASL is used as a Per
+sonal Interpreter. With the help of an ARheadset,PersonalInterpreter
+ enables real-time two-way communications between a deaf person
+ and peole who do not understand ASL. Specifically, on one hand,
+ Personal Interpreter uses speech recognition technology to translate
+ spoken languages into digital texts, and then projects the digital
+ texts to the AR screen for the deaf person to see; on the other hand,
+ Personal Interpreter uses ASL recognition technology to translate
+ ASL performed by the deaf person into spoken languages for peole
+ who do not understand ASL.
+ Implementation: We implemented Personal Interpreter as a Mi
+crosoft Hololens application. Since Mircrosoft Hololens currently
+ does not support hosting USB clients, we could not implement
+ DeepASL in Mircrosoft Hololens. Instead, we transmitted the ASL
+ recognition results to Hololens via TCP/IP. Figure 16 illustrates the
+ usage scenario and a screenshot from AR perspective. As shown,
+ the recognized ASL sentence is displayed in the green dialogue box
+ in the Hololens application. The tablet-AR set is burdensome to the
+ deaf people, but we envision that in the future, the AR headset will
+ be miniaturized and hence is much less burdensome for people to
+ wear on a daily basis. Meanwhile, the future AR headset will be
+ able to host a USB device, enabling direct data transmission from
+ Leap Motion to itself.
+ AR 
+Headse
+ t
+ Deaf 
+Person 
+(A)
+ (a)
+ B: Speech 
+Recognition A: ASL Sentence 
+Translation
+ Normal Hearing 
+Person (B)
+ ASL
+ (b)
+ Deaf-Normal 
+Conversion 
+AR App
+ Figure16:ThePersonalInterpreter application:(a)adeafpersonper
+forming ASL while wearing a Microsoft Hololens AR headset; (b) a
+ screenshot from AR perspective.
+ 7.2 Application#2: ASL Dictionary
+ Use Scenario: For the second application, DeepASL is used as an
+ ASL Dictionary to help a deaf person look up unknown ASL words.
+ Spoken languages (e.g., English) allow one to easily look up an
+ unknown word via indexing. Unfortunately, this is not the case
+ for ASL. Imagine a deaf child who wants to look up an ASL word
+ that she remembers how to perform but forgets the meaning of it.
+ Without the help of a person who understands ASL, there is not an
+ easy way for her to look up the ASL word. This is because unlike
+ spoken languages, ASL does not have a natural form to properly
+ index each gesture. ASL Dictionary solves this problem by taking
+ the sign of the ASL word as input and displays the meaning of this
+ ASL word in real time.
+ Implementation: We implemented ASL Dictionary as a Microsoft
+ Surface tablet application. Figure 17 illustrates the usage scenario
+ and a screenshot of the tablet application.
+SenSys ’17, November 6–8, 2017, Delft, Netherlands
+ B. Fang et al.
+ (a)
+ Looked-up Word 
+& Explanation
+ (b)
+ ASL 
+Visualization
+ Figure 17: TheASLDictionary application: (a) a deaf personlooking
+ up anASLword“help”; (b) a screenshot of the tablet application.
+ 8 DISCUSSION
+ Impact on ASL Translation Technology: DeepASL represents
+ the first ASL translation technology that enables ubiquitous and
+ non-intrusive ASL translation at both word and sentence levels. It
+ demonstrates the superiority of using infrared light and skeleton
+ joints information over other sensing modalities for capturing key
+ characteristics of ASL signs. It also demonstrates the capability
+ of hierarchical bidirectional deep recurrent neural network for
+ single-sign modeling as well as CTC for translating the whole
+ sentence end-to-end without requiring users to pause between
+ adjacent signs. Given the innovation solution it provides and its
+ promising performance, we believe DeepASL has made a significant
+ contribution to the advancement of ASL translation technology.
+ Initiative on ASL Sign Data Crowdsourcing: Despite months
+ of efforts spent on data collection, our dataset still covers a small
+ portion of the ASL vocabulary. To make DeepASL being able to
+ translate as many words as in the ASL vocabulary and many more
+ sentences that deaf people use in their daily-life communications,
+ we have taken an initiative on ASL sign data crowdsourcing. We
+ have made our data collection toolkit publicly available. We hope
+ our initiative could serve as a seed to draw attentions from peo
+ple who share the same vision as we have, and want to turn this
+ vision into reality. We deeply believe that, with the crowdsourced
+ efforts, ASL translation technology can be significantly advanced.
+ With that, we could ultimately turn the vision of tearing down the
+ communication barrier between the deaf people and the hearing
+ majority into reality.
+ 9 RELATEDWORK
+ Our work is related to two research areas: 1) sign language transla
+tion; and more broadly 2) mobile sensing systems.
+ Sign LanguageTranslation Systems: Over the past few decades,
+ a variety of sign language translation systems based on various
+ sensing modalities have been developed. Among them, systems
+ based on wearable sensors have been extensively studied [8, 24
+28, 36, 42, 46]. These systems use motion sensors, EMG sensors,
+ bend sensors, or their combinations to capture hand movements,
+ muscle activities, or bending of fingers to infer the performed signs.
+ For example, Wu et al. developed a wrist-worn device with onboard
+ motion and EMG sensors which is able to recognize 40 signs [46].
+ Another widely used sensing modality in sign language translation
+ systems is RGB camera [10, 40, 47]. For example, Starner et al. are
+ able to recognize 40 ASL words using Hidden Markov Model with
+ a hat-mounted RGB camera [40]. There are also some efforts on
+ designing sign language translation systems based on Microsoft
+ Kinect [11, 12]. As an example, by capturing the skeleton joints
+ of the user body and limbs using Microsoft Kinect, Chai et al. are
+ able to recognize Chinese Sign Language by matching the collected
+ skeleton trajectory with gallery trajectories [12]. Most recently,
+ researchers have started exploring using Leap Motion to build sign
+ language translation systems [13, 30]. However, these systems are
+ very limited in their capabilities in the sense that they can only
+ recognize static ASL signs by capturing hand shape information.
+ In contrast, DeepASL captures both hand shape and movement
+ information so that it is able to recognize dynamicsignsthatinvolve
+ movements. Most importantly, compared to all the existing sign
+ language translation systems, DeepASL is the first framework that
+ enables end-to-end ASL sentence translation.
+ Mobile Sensing Systems: Our work is also broadly related to re
+search in mobile sensing systems. Prior mobile sensing systems
+ have explored a variety of sensing modalities that have enabled a
+ wide range of innovative applications. Among them, accelerometer,
+ microphone and physiological sensors are some of the mostly ex
+plored sensing modalities. For example, Mokaya et al. developed
+ an accelerometer-based system to sense skeletal muscle vibrations
+ for quantifying skeletal muscle fatigue in an exercise setting [33].
+ Nirjon et al. developed MusicalHeart [35] which integrated a micro
+phoneintoanearphonetoextractheartbeat information from audio
+ signals. Nguyen et al. designed an in-ear sensing system in the form
+ of earplugs that is able to capture EEG, EOG, and EMG signals for
+ sleep monitoring [34]. Recently, researchers have started exploring
+ using wireless radio signal as a contactless sensing mechanism. For
+ example, Wang et al. developed WiFall [45] that used wireless radio
+ signal to detect accidental falls. Fang et al. used radio as a single
+ sensing modality for integrated activities of daily living and vital
+ sign monitoring [17]. In this work, we explore infrared light as a
+ new sensing modality in the context of ASL translation. It comple
+mentsexisting mobile sensing systems by providing a non-intrusive
+ and high-resolution sensing scheme. We regard this work as an
+ excellent example to demonstrate the usefulness of infrared sensing
+ for mobile systems. With the incoming era of virtual/augmented
+ reality, we envision infrared sensing will be integrated into many
+ future mobile systems such as smartphones and smart glasses.
+ 10 CONCLUSION
+ In this paper, we present the design, implementation and evaluation
+ of DeepASL, a transformative deep learning-based sign language
+ translation technology that enables ubiquitous and non-intrusive
+ ASL translation at both word and sentence levels. At the word
+ level, DeepASL achieves an average 94.5% translation accuracy
+ over 56 commonly used ASL words. At the sentence level, DeepASL
+ achieves an average 8.2% word error rate on translating unseen
+ ASL sentences and an average 16.1% word error rate on translating
+ ASLsentences performed by unseen users over 100 commonly used
+ ASL sentences. Given the innovation solution it provides and its
+ promising performance, we believe DeepASL has made a significant
+ contribution to the advancement of ASL translation technology.
+ ACKNOWLEDGMENTS
+ WewouldliketothankDr.JohnStankovicforbeingthe shepherd of
+ this paper. We are also grateful to the anonymous SenSys reviewers
+ for their valuable reviews and insightful comments. This research
+ was partially funded by NSF awards #1565604 and #1617627.
+DeepASL
+ SenSys ’17, November 6–8, 2017, Delft, Netherlands
