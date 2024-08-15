@@ -1,0 +1,238 @@
+Proyecto: TraductorLSCH
+=======================
+├── data/
+│   ├── 0.h5
+│   ├── 1.h5
+│   ├── 10.h5
+│   ├── 2.h5
+│   ├── 3.h5
+│   ├── 4.h5
+│   ├── 5.h5
+│   ├── 6.h5
+│   ├── 7.h5
+│   ├── 8.h5
+│   ├── 9.h5
+│   ├── amor.h5
+│   ├── bien.h5
+│   ├── caballo.h5
+│   ├── casa.h5
+│   ├── comer.h5
+│   ├── como.h5
+│   ├── cual.h5
+│   ├── cuantos.h5
+│   ├── estudiar.h5
+│   ├── hasta.h5
+│   ├── helado.h5
+│   ├── hola.h5
+│   ├── hombre.h5
+│   ├── mal.h5
+│   ├── menor.h5
+│   ├── mujer.h5
+│   ├── nombre.h5
+│   ├── responsable.h5
+│   ├── rulos.h5
+│   ├── si.h5
+│   ├── tijera.h5
+│   ├── usted.h5
+│   ├── verano.h5
+│   ├── vino.h5
+│   └── yo.h5
+├── frame_actions/
+│   ├── 0/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   └── sample_4/
+│   ├── 1/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   └── sample_4/
+│   ├── 10/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   └── sample_4/
+│   ├── 2/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   └── sample_4/
+│   ├── 3/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   └── sample_4/
+│   ├── 4/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   └── sample_3/
+│   ├── 5/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   └── sample_3/
+│   ├── 6/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   └── sample_3/
+│   ├── 7/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   └── sample_3/
+│   ├── 8/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   └── sample_3/
+│   ├── 9/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   └── sample_3/
+│   ├── amor/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   └── sample_3/
+│   ├── bien/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   ├── sample_4/
+│   │   ├── sample_5/
+│   │   └── sample_6/
+│   ├── caballo/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   └── sample_4/
+│   ├── casa/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   └── sample_4/
+│   ├── comer/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   └── sample_3/
+│   ├── como/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   ├── sample_4/
+│   │   └── sample_5/
+│   ├── cual/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   └── sample_4/
+│   ├── cuantos/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   ├── sample_4/
+│   │   ├── sample_5/
+│   │   └── sample_6/
+│   ├── estudiar/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   └── sample_3/
+│   ├── hasta/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   ├── sample_4/
+│   │   ├── sample_5/
+│   │   └── sample_6/
+│   ├── helado/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   └── sample_4/
+│   ├── hola/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   ├── sample_4/
+│   │   ├── sample_5/
+│   │   └── sample_6/
+│   ├── hombre/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   └── sample_4/
+│   ├── mal/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   └── sample_4/
+│   ├── menor/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   ├── sample_4/
+│   │   └── sample_5/
+│   ├── mujer/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   └── sample_3/
+│   ├── nombre/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   └── sample_3/
+│   ├── responsable/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   └── sample_4/
+│   ├── rulos/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   └── sample_3/
+│   ├── si/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   └── sample_4/
+│   ├── tijera/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   ├── sample_4/
+│   │   └── sample_5/
+│   ├── usted/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   ├── sample_4/
+│   │   ├── sample_5/
+│   │   └── sample_6/
+│   ├── verano/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   ├── sample_4/
+│   │   └── sample_5/
+│   ├── vino/
+│   │   ├── sample_1/
+│   │   ├── sample_2/
+│   │   ├── sample_3/
+│   │   ├── sample_4/
+│   │   ├── sample_5/
+│   │   ├── sample_6/
+│   │   ├── sample_7/
+│   │   ├── sample_8/
+│   │   └── sample_9/
+│   └── yo/
+│       ├── sample_1/
+│       ├── sample_2/
+│       ├── sample_3/
+│       ├── sample_4/
+│       └── sample_5/
+├── models/
+│   └── actions_15.keras
+├── 0. Interfaz.py
+├── 1. Capturar Muestras.py
+├── 2. Crear Puntos Caracteristicos.py
+├── 3. Entrenar Modelo.py
+├── 4. Evaluar Modelo.py
+├── README.md
+├── example.py
+└── text_to_speech.py
