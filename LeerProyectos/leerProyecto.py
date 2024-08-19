@@ -1,10 +1,13 @@
 import os
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QVBoxLayout, QWidget, QPushButton, QLineEdit, QCheckBox, QLabel, QMessageBox
-from PyQt5.QtCore import QDir, Qt
+from PyQt5.QtWidgets import (
+    QApplication, QMainWindow, QFileDialog, QVBoxLayout, QWidget,
+    QPushButton, QLineEdit, QCheckBox, QLabel, QMessageBox
+)
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from datetime import datetime
-import subprocess  # Para abrir la carpeta de forma compatible en distintos sistemas
+import subprocess
 
 # Lista de carpetas reservadas del sistema y otras carpetas que queremos ignorar
 IGNORED_FOLDERS = ['System Volume Information', '$RECYCLE.BIN', 'Windows', '.git', '__pycache__', 'node_modules']
@@ -20,7 +23,7 @@ class FileStructureApp(QMainWindow):
         super().__init__()
 
         self.setWindowTitle("Generador de Estructura de Archivos")
-        self.setGeometry(100, 100, 400, 200)
+        self.setGeometry(100, 100, 400, 300)  # Ajustado para mayor comodidad
         self.setWindowIcon(QIcon(os.path.join(os.path.dirname(__file__), 'iconos', 'icon.png')))
 
         self.central_widget = QWidget()
@@ -70,9 +73,6 @@ class FileStructureApp(QMainWindow):
             QPushButton:pressed {
                 background-color: #004494;
             }
-            QMessageBox {
-                background-color: #ffffff;
-            }
         """)
 
         # Crear los widgets
@@ -84,6 +84,10 @@ class FileStructureApp(QMainWindow):
 
         self.entry = QLineEdit()
         self.layout.addWidget(self.entry)
+
+        self.select_button = QPushButton("Seleccionar")
+        self.select_button.clicked.connect(self.select_directory)
+        self.layout.addWidget(self.select_button)
 
         self.img_checkbox = QCheckBox("Omitir imágenes")
         self.layout.addWidget(self.img_checkbox)
@@ -99,6 +103,15 @@ class FileStructureApp(QMainWindow):
         self.open_folder_button = QPushButton("Abrir Carpeta")
         self.open_folder_button.clicked.connect(self.open_lecturas_folder)
         self.layout.addWidget(self.open_folder_button)
+
+    def select_directory(self):
+        """
+        Abre un diálogo para seleccionar una carpeta y actualiza el campo de texto con la ruta seleccionada.
+        """
+        options = QFileDialog.Options()
+        directory = QFileDialog.getExistingDirectory(self, "Seleccionar Carpeta", options=options)
+        if directory:
+            self.entry.setText(directory)
 
     def create_lecturas_folder(self):
         """
@@ -197,8 +210,9 @@ class FileStructureApp(QMainWindow):
     def on_copy(self):
         """
         Maneja el evento de clic en el botón "Copiar".
-        Copia el contenido del último archivo generado.
+        Copia el contenido del último archivo generado al portapapeles.
         """
+        global last_filename
         if not last_filename:
             QMessageBox.critical(self, "Error", "No se ha generado ninguna lectura aún.")
             return
