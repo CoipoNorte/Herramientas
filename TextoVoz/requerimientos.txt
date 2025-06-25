@@ -1,0 +1,3 @@
+C:\Users\NAMEUSER\AppData\Local\Programs\Python\Python313\python.exe -m pip install pyttsx3
+
+C:\Users\NAMEUSER\AppData\Local\Programs\Python\Python313\python.exe -m pip install pyperclip
